@@ -16,6 +16,9 @@
 namespace Console.GetHashCode
 {
     using System;
+    using System.ComponentModel;
+    using System.Linq.Expressions;
+    using System.Reflection;
 
     public class Program
     {
@@ -76,6 +79,97 @@ namespace Console.GetHashCode
 
             Console.WriteLine("Mit einer beliebigen Taste zurück zum Menü!");
             Console.ReadKey();
+        }
+    }
+
+    public class ContactV1
+    {
+        #region Properties
+        public string Name { get; set; }
+        public int Age { get; set; }
+        #endregion Properties
+
+        public override int GetHashCode()
+        {
+            unchecked //Überlauf ist in Ordnung, bzw. gewollt, einfach einpacken
+            {
+                int hash = 17;
+                hash = hash * 23 + this.Name.GetHashCode();
+                hash = hash * 23 + this.Age.GetHashCode();
+                return hash;
+            }
+        }
+    }
+
+    public class ContactV2
+    {
+        #region Properties
+        public string Name { get; set; }
+        public int Age { get; set; }
+        #endregion Properties
+
+        public override int GetHashCode()
+        {
+            int result = 0;
+            var hash = new HashCode();
+
+            try
+            {
+                PropertyInfo[] propInfo = this.GetType().GetProperties(BindingFlags.Public|BindingFlags.Instance);
+                foreach (PropertyInfo propItem in propInfo)
+                {
+                    hash.Add(propItem.GetValue(this, null));
+                }
+
+                result = hash.ToHashCode();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return result;
+        }
+    }
+
+    public class ContactV3
+    {
+        #region Properties
+        public string Name { get; set; }
+        public int Age { get; set; }
+        #endregion Properties
+
+        public override int GetHashCode()
+        {
+            return CalculateHash<ContactV3>(x => x.Name, x => x.Age);
+        }
+
+        private int CalculateHash<T>(params Expression<Func<T, object>>[] expressions)
+        {
+            int result = 0;
+            HashCode hash = new HashCode();
+            Type type = typeof(T);
+
+            try
+            {
+                foreach (var property in expressions)
+                {
+                    string propertyName = ExpressionPropertyName.For<T>(property);
+                    object propertyValue = type.GetProperty(propertyName).GetValue(this);
+                    if (string.IsNullOrEmpty(propertyName) == false && propertyValue != null)
+                    {
+                        hash.Add(propertyValue);
+                    }
+                }
+
+                result = hash.ToHashCode();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return result;
         }
     }
 }
