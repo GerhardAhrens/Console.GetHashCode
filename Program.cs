@@ -61,6 +61,21 @@ namespace Console.GetHashCode
         {
             Console.Clear();
 
+            ContactV1 contact1 = new ContactV1();
+            contact1.Name = "Gerhard";
+            contact1.Age = 64;
+            int hashCode1 = contact1.GetHashCode();
+
+            ContactV1 contact2 = new ContactV1();
+            contact2.Name = "Gerhard";
+            contact2.Age = 64;
+            int hashCode2 = contact2.GetHashCode();
+
+            if (hashCode1 == hashCode2)
+            {
+                Console.WriteLine($"HashCode von 'ContactV1' = {hashCode1} und 'ContactV2' = {hashCode2} sind gleich.");
+            }
+
             Console.WriteLine("Mit einer beliebigen Taste zurück zum Menü!");
             Console.ReadKey();
         }
@@ -69,6 +84,21 @@ namespace Console.GetHashCode
         {
             Console.Clear();
 
+            ContactV2 contact1 = new ContactV2();
+            contact1.Name = "Gerhard";
+            contact1.Age = 64;
+            int hashCode1 = contact1.GetHashCode();
+
+            ContactV2 contact2 = new ContactV2();
+            contact2.Name = "Gerhard";
+            contact2.Age = 64;
+            int hashCode2 = contact2.GetHashCode();
+
+            if (hashCode1 == hashCode2)
+            {
+                Console.WriteLine($"HashCode von 'ContactV1' = {hashCode1} und 'ContactV2' = {hashCode2} sind gleich.");
+            }
+
             Console.WriteLine("Mit einer beliebigen Taste zurück zum Menü!");
             Console.ReadKey();
         }
@@ -76,6 +106,21 @@ namespace Console.GetHashCode
         private static void MenuPoint3()
         {
             Console.Clear();
+
+            ContactV3 contact1 = new ContactV3();
+            contact1.Name = "Gerhard";
+            contact1.Age = 64;
+            int hashCode1 = contact1.GetHashCode();
+
+            ContactV3 contact2 = new ContactV3();
+            contact2.Name = "Gerhard";
+            contact2.Age = 64;
+            int hashCode2 = contact2.GetHashCode();
+
+            if (hashCode1 == hashCode2)
+            {
+                Console.WriteLine($"HashCode von 'ContactV1' = {hashCode1} und 'ContactV2' = {hashCode2} sind gleich.");
+            }
 
             Console.WriteLine("Mit einer beliebigen Taste zurück zum Menü!");
             Console.ReadKey();

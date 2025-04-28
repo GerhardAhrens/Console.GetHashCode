@@ -38,7 +38,7 @@ public class Contact
 }
 ```
 
-### Nachteil dieser herkömmlichen Implementierung
+### Nachteil der herkömmlichen Implementierung
 
 Zum einen muß der umgabg mit **null** behandelt werden, zum anderen ist einer erweiterte Implementierung notwendig, wenn z.B. eine List<T> oder auch ein Dictionary<K,V> als Propertiy mit einbezogen werden soll.
 Ein weiteres Problem kann sein, hier passende **Magic Numbers** einzusetzen um Kollisionen so gering wie möglich zu halen. Primzahlen sind dabei am besten geeignet.
@@ -53,4 +53,84 @@ Ich persönlich wäre nicht in der Lage, mir jedes Mal, wenn ich GetHashCode imple
 
 Mit NET Core 2.1 wurde die Struktur **HashCode** unter den Namespace *System* hinzugefügt.
 Hiermit kann nun auf einfache Weise die Funktionalität für **GetHashCode()** ohne magische Zahlen und Prüfung des Speicherüberlauf *unchecked* erstellt werden.</br>
+
+
+Bei diesem Beispiel werden alle Public Property zur Bildung des Object-Hashcode unter Verwendung der Klasse *HashCode* erstellt.
+```csharp
+public class ContactV2
+{
+    #region Properties
+    public string Name { get; set; }
+    public int Age { get; set; }
+    #endregion Properties
+
+    public override int GetHashCode()
+    {
+        int result = 0;
+        var hash = new HashCode();
+
+        try
+        {
+            PropertyInfo[] propInfo = this.GetType().GetProperties(BindingFlags.Public|BindingFlags.Instance);
+            foreach (PropertyInfo propItem in propInfo)
+            {
+                hash.Add(propItem.GetValue(this, null));
+            }
+
+            result = hash.ToHashCode();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+        return result;
+    }
+}
+```
+
+</br>
+In diesem Beispiel wird wie zuvor der Hashcode über die Klasse *HashCode* ermittelt. Die Erweiterung ist hier die Methode *CalculateHash* über die Lamda-Expression kann die Hashcode Erstellung auf einzelnen Properties begrenzt werden.</br>
+
+```csharp
+public class ContactV3
+{
+    #region Properties
+    public string Name { get; set; }
+    public int Age { get; set; }
+    #endregion Properties
+
+    public override int GetHashCode()
+    {
+        return CalculateHash<ContactV3>(x => x.Name, x => x.Age);
+    }
+
+    private int CalculateHash<T>(params Expression<Func<T, object>>[] expressions)
+    {
+        int result = 0;
+        HashCode hash = new HashCode();
+        Type type = typeof(T);
+
+        try
+        {
+            foreach (var property in expressions)
+            {
+                string propertyName = ExpressionPropertyName.For<T>(property);
+                object propertyValue = type.GetProperty(propertyName).GetValue(this);
+                if (string.IsNullOrEmpty(propertyName) == false && propertyValue != null)
+                {
+                    hash.Add(propertyValue);
+                }
+            }
+
+            result = hash.ToHashCode();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+        return result;
+    }
+```
 
